@@ -1,0 +1,264 @@
+%% ODE Lab: Creating your own ODE solver in MATLAB
+%
+% In this lab, you will write your own ODE solver for the Improved Euler 
+% method (also known as the Heun method), and compare its results to those 
+% of |ode45|.
+%
+% You will also learn how to write a function in a separate m-file and 
+% execute it.
+% 
+% Opening the m-file lab3.m in the MATLAB editor, step through each
+% part using cell mode to see the results.  Compare the output with the
+% PDF, which was generated from this m-file.
+%
+% There are six (6) exercises in this lab that are to be handed in on the
+% due date. Write your solutions in the template, including
+% appropriate descriptions in each step. Save the .m files and submit them 
+% online on Quercus.
+%
+% MAT292, Fall 2019, Stinchcombe & Parsch, modified from
+% MAT292, Fall 2018, Stinchcombe & Khovanskii, modified from
+% MAT292, Fall 2017, Stinchcombe & Sinnamon, modified from
+% MAT292, Fall 2015, Sousa, modified from
+% MAT292, Fall 2013, Sinnamon & Sousa, modified from
+% MAT292, Fall 2011, Hart & Pym
+
+%% Student Information
+%
+% Student Name: Prerak Chaudhari
+%
+% Student Number: 1005114760
+%
+
+%% Creating new functions using m-files.
+%  
+% Create a new function in a separate m-file:
+%
+% Specifics:  Create a text file with the file name f.m
+% with the following lines of code (text):
+%
+%  function y = f(a,b,c) 
+%  y = a+b+c;
+%
+% Now MATLAB can call the new function f (which simply accepts 3 numbers
+% and adds them together).  
+% To see how this works, type the following in the matlab command window:
+% sum = f(1,2,3)
+
+%% Exercise 1
+%
+% Objective: Write your own ODE solver (using the Heun/Improved Euler
+% Method).
+%
+% Details: This m-file should be a function which accepts as variables 
+% (t0,tN,y0,h), where t0 and tN are the start and end points of the 
+% interval on which to solve the ODE, y0 is the initial condition of the
+% ODE, and h is the stepsize.  You may also want to pass the function into
+% the ODE the way |ode45| does (check lab 2).
+%
+% Note: you will need to use a loop to do this exercise.  
+% You will also need to recall the Heun/Improved Euler algorithm learned in lectures.  
+%
+
+% See lab3_ex1.m
+
+%% Exercise 2
+%
+% Objective: Compare Heun with |ode45|.
+%
+% Specifics:  For the following initial-value problems (from lab 2, 
+% exercises 1, 4-6), approximate the solutions with your function from
+% exercise 1 (Improved Euler Method).
+% Plot the graphs of your Improved Euler Approximation with the |ode45| 
+% approximation.
+%
+% (a) |y' = y tan t + sin t, y(0) = -1/2| from |t = 0| to |t = pi|
+%
+% (b) |y' = 1 / y^2 , y(1) = 1| from |t=1| to |t=10|
+%
+% (c) |y' =  1 - t y / 2, y(0) = -1| from |t=0| to |t=10|
+%
+% (d) |y' = y^3 - t^2, y(0) = 1| from |t=0| to |t=1|
+%
+% Comment on any major differences, or the lack thereof. You do not need
+% to reproduce all the code here. Simply make note of any differences for
+% each of the four IVPs.
+
+% (a) |y' = y tan t + sin t, y(0) = -1/2| from |t = 0| to |t = pi|
+w= @(t,y) y * tan(t) + sin(t);
+[a,b] =lab3_ex1(w,0,pi,-1/2,0.1);
+soln1 = ode45(w, [0, pi], -1/2);
+figure (1)
+plot(b,a,soln1.x,soln1.y)
+xlabel('t');
+title('Solution for Exercise 1a')
+legend('IEM','ODE45','Location','Best');
+
+% (b) |y' = 1 / y^2 , y(1) = 1| from |t=1| to |t=10|
+q= @(t,y) 1 / y.^2;
+[c,d] =lab3_ex1(q,1,10,1,0.1);
+soln2 = ode45(q, [1, 10],1);
+figure(2)
+plot(d,c, soln2.x, soln2.y)
+xlabel('t');
+title('Solution for Exercise 1b')
+legend('IEM','ODE45','Location','Best');
+
+% (c) |y' =  1 - t y / 2, y(0) = -1| from |t=0| to |t=10|
+cc= @(t,y) 1 - t .* y/2;
+[aa,bb] =lab3_ex1(cc,0,10,-1,0.1);
+soln3 = ode45(cc, [0, 10],-1);
+figure(3)
+plot(bb,aa, soln3.x, soln3.y)
+xlabel('t');
+title('Solution for Exercise 1c')
+legend('IEM','ODE45','Location','Best');
+
+% (d) |y' = y^3 - t^2, y(0) = 1| from |t=0| to |t=1|
+ddd= @(t,y) y^3 -t.^2;
+[o,i] =lab3_ex1(ddd,0,1,1,0.01);
+soln4 = ode45(ddd,[0, 1],1);
+figure(4)
+plot(i,o, soln4.x, soln4.y)
+xlabel('t');
+title('Solution for Exercise 1d')
+legend('IEM','ODE45','Location','Best');
+
+% Comments:
+% a) around t = 1.55~1.6, the IEM approximation produces a notch which is
+% not present in the approximation produced by ODE45. the given derivative
+% contains a tan(t) term. since 1.55~1.6 is approximately pi/2, the slope
+% used in IEM approaches positive infinity around this point.
+% b) the solutions produced by IEM and ODE45 are very similar with little
+% visible variations.
+% c) the step sizes used by ODE45 are too large, resulting in a broken line
+% curve which is clearly visible in the interval 2 < t < 3.
+% d) at t=5.066046e-01, ODE45 is unable to meet integration tolerances
+% without reducing the step size below the smallest value allowed
+% (1.776357e-15), resulting in an inaccurate solution.
+
+%% Exercise 3
+%
+% Objective: Use Euler's method and verify an estimate for the global error.
+%
+% Details: 
+%
+% (a) Use Euler's method (you can use
+% euler.m from iode) to solve the IVP
+%
+% |y' = 2 t sqrt( 1 - y^2 )  ,  y(0) = 0|
+%
+% from |t=0| to |t=0.5|.
+
+pp = @(t,y) 2*t*(1-y.^2)^(1/2);
+em_sol = euler_lab3(pp,0,0.5,0,0.01);
+
+% (b) Calculate the solution of the IVP and evaluate it at |t=0.5|.
+
+y_exact=sin(0.5^2);
+
+% (c) Read the attached derivation of an estimate of the global error for 
+%     Euler's method. Type out the resulting bound for En here in
+%     a comment. Define each variable.
+
+% The error bound is defined as follows:
+% En = (((1+M)/2)*(delta_t)*(e^(M*delta_tn)-1)
+% 
+% Where:
+% M is the upper bound of function f and its partial derivatives
+% delta_t is the time step
+% delta_tn is the total time elapsed (multiply n, the number of steps, by the time step delta_t)
+
+% (d) Compute the error estimate for |t=0.5| and compare with the actual
+% error.
+
+%original function (1)
+f = @(t,y) 2*t*(1-y.^2)^(1/2);
+
+%derivative wrt to t (2)
+f_t = @(t,y) 2 * (1-y.^2)^(1/2);
+
+%derivative wrt to y (3)
+f_y = @(t,y) 2 *t*y* (1-y.^2)^(-1/2);
+
+delta_t = 0.02;
+delta_tn = 0.5;
+
+% The exact solution is f(t) = sin(t^2), evaluated at t = 0.5
+% --> y = sin(0.5^2)
+% Functions (1), (2), (3) are plotted using a graphing tool on the interval
+% 0 < t < 0.5 to determine that the upper bound, M, is 2.
+% Thus:
+M=2;
+E_1 = ((1+M) *(delta_t/2)) * (exp(M*delta_tn) -1)
+actual_error_1 = sin(0.5^2) - E_1
+% Using a step size of 0.02, the calculated error is 0.515.
+
+% (e) Change the time step and compare the new error estimate with the
+% actual error. Comment on how it confirms the order of Euler's method.
+
+%% Adaptive Step Size
+%
+% As mentioned in lab 2, the step size in |ode45| is adapted to a
+% specific error tolerance.
+%
+% The idea of adaptive step size is to change the step size |h| to a
+% smaller number whenever the derivative of the solution changes quickly.
+% This is done by evaluating f(t,y) and checking how it changes from one
+% iteration to the next.
+
+%% Exercise 4
+%
+% Objective: Create an Adaptive Euler method, with an adaptive step size |h|.
+%
+% Details: Create an m-file which accepts the variables |(t0,tN,y0,h)|, as 
+% in exercise 1, where |h| is an initial step size. You may also want to 
+% pass the function into the ODE the way |ode45| does.
+%
+% Create an implementation of Euler's method by modifying your solution to 
+% exercise 1. Change it to include the following:
+%
+% (a) On each timestep, make two estimates of the value of the solution at
+% the end of the timestep: |Y| from one Euler step of size |h| and |Z| 
+% from two successive Euler steps of size |h/2|. The difference in these
+% two values is an estimate for the error.
+%
+% (b) Let |tol=1e-8| and |D=Z-Y|. If |abs(D)<tol|, declare the step to be
+% successful and set the new solution value to be |Z+D|. This value has
+% local error |O(h^3)|. If |abs(D)>=tol|, reject this step and repeat it 
+% with a new step size, from (c).
+%
+% (c) Update the step size as |h = 0.9*h*min(max(tol/abs(D),0.3),2)|.
+%
+% Comment on what the formula for updating the step size is attempting to
+% achieve.
+
+%% Exercise 5
+%
+% Objective: Compare Euler to your Adaptive Euler method.
+%
+% Details: Consider the IVP from exercise 3.
+%
+% (a) Use Euler method to approximate the solution from |t=0| to |t=0.75|
+% with |h=0.025|.
+%
+% (b) Use your Adaptive Euler method to approximate the solution from |t=0| 
+% to |t=0.75| with initial |h=0.025|.
+%
+% (c) Plot both approximations together with the exact solution.
+
+%% Exercise 6
+%
+% Objective: Problems with Numerical Methods.
+%
+% Details: Consider the IVP from exercise 3 (and 5).
+% 
+% (a) From the two approximations calculated in exercise 5, which one is
+% closer to the actual solution (done in 3.b)? Explain why.
+% 
+% (b) Plot the exact solution (from exercise 3.b), the Euler's 
+% approximation (from exercise 3.a) and the adaptive Euler's approximation 
+% (from exercise 5) from |t=0| to |t=1.5|.
+%
+% (c) Notice how the exact solution and the approximations become very
+% different. Why is that? Write your answer as a comment.
